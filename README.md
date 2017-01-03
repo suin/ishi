@@ -57,3 +57,13 @@ To install Ishi, please use `go get`:
 ```
 go get github.com/suin/ishi
 ```
+
+## How Does It Works
+
+1. Ishi starts to listen on Desktop (192.168.3.2:8000)
+* Mobile device (192.168.3.2) on same LAN send HTTP request to `http://192.168.3.2:8000`
+* Ishi fowards the request to Docker container. On the same time, Ishi overwrite `Host` header to `app.docker` from `192.168.3.2:8000` so that reverse proxy can foward the request to another container.
+* The Docker container responds.
+* Ishi forwards the response to the mobile device
+
+![](https://raw.github.com/suin/ishi/master/image.png)
