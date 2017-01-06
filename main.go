@@ -73,7 +73,7 @@ Examples:
 	}
 
 	// start reverse proxy server
-	fmt.Printf("Listening on 127.0.0.1:%d\nFowarding to %s\n", port, upstream)
+	fmt.Printf("Listening on 0.0.0.0:%d\nFowarding to %s\n", port, upstream)
 	err = httpfwd(fmt.Sprintf(":%d", port), scheme, upstreamHost)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
