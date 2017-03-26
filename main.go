@@ -16,7 +16,7 @@ func main() {
 	usage := `ishi.
 
 Usage:
-  ishi [-l=<port>] <upstream>
+  ishi [-l=<port>] [--verbose] <upstream>
   ishi -h | --help
   ishi --version
 
@@ -27,6 +27,7 @@ Options:
   -h --help             Show help.
   --version             Show version.
   -l --listen=<port>    Specify port to listen.
+	--verbose             Show debug information.
 
 Examples:
   ishi 192.168.10.2
@@ -36,6 +37,7 @@ Examples:
 	arguments, _ := docopt.Parse(usage, nil, true, "1.0", false)
 	upstream := arguments["<upstream>"]
 	listen := arguments["--listen"]
+	verbose := arguments["--verbose"].(bool)
 
 	var err error
 
@@ -74,7 +76,7 @@ Examples:
 
 	// start reverse proxy server
 	fmt.Printf("Listening on 0.0.0.0:%d\nFowarding to %s\n", port, upstream)
-	err = httpfwd(fmt.Sprintf(":%d", port), scheme, upstreamHost)
+	err = httpfwd(fmt.Sprintf(":%d", port), scheme, upstreamHost, verbose)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
@@ -92,10 +94,17 @@ func findAvailablePort() (int, error) {
 	return 0, errors.New("There is no available port to listen")
 }
 
-func httpfwd(listenAddr, scheme, remoteHost string) error {
+func httpfwd(listenAddr, scheme, remoteHost string, verbose bool) error {
 	http.HandleFunc("/",
 		func(w http.ResponseWriter, r *http.Request) {
+			originalHost := r.Host
 			r.Host = remoteHost
+			r.Header["X-Forwarded-Host"] = []string{originalHost}
+			if verbose {
+				if requestDump, err := httputil.DumpRequest(r, false); err == nil {
+					fmt.Println(string(requestDump))
+				}
+			}
 			p := httputil.NewSingleHostReverseProxy(&url.URL{
 				Scheme: scheme,
 				Host:   remoteHost,
