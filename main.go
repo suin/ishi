@@ -34,7 +34,7 @@ Examples:
   ishi http://192.168.10.2
   ishi https://secure.example.com`
 
-	arguments, _ := docopt.Parse(usage, nil, true, "1.0", false)
+	arguments, _ := docopt.Parse(usage, nil, true, "1.1.0", false)
 	upstream := arguments["<upstream>"]
 	listen := arguments["--listen"]
 	verbose := arguments["--verbose"].(bool)
